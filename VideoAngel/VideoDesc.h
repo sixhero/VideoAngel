@@ -76,8 +76,11 @@ private:
 	///// @brief 视频源数据帧
 	//AVFrame* m_av_frame_src = nullptr;
 
-	/// @brief 指定格式转换后的目的数据帧
-	AVFrame* m_av_frame_dest = nullptr;
+	/// @brief 指定格式转换后的目的视频数据帧
+	AVFrame* m_av_video_frame_dest = nullptr;
+
+	/// @brief 指定格式转换后的目的音频数据帧
+	AVFrame* m_av_audio_frame_dest = nullptr;
 
 	//音频数据的通道数
 	int m_audio_channels;
@@ -93,6 +96,9 @@ private:
 
 	/// @brief 解码线程
 	std::thread decode_thread;
+
+	/// @brief 视频数据平均码率
+	int m_video_fps;
 
 private:
 	/// @brief 解包函数

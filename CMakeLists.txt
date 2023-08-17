@@ -10,8 +10,12 @@ if (POLICY CMP0141)
 endif()
 
 add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/source-charset:utf-8>")
+add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/execution-charset:gbk>")
 
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /utf-8")
 project ("VideoAngel")
+
+#add_definitions("-DUNICODE" "-D_UNICODE")
 
 # 包含子项目。
 add_subdirectory ("VideoAngel")

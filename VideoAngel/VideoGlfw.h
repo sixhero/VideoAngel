@@ -2,6 +2,7 @@
 #define _VIDEOGLFW_
 
 #include <iostream>
+#include <thread>
 
 // TODO: 在此处引用程序需要的其他标头。
 #include <glad/glad.h>
@@ -13,6 +14,9 @@
 #define STRING(x) #x
 #define SHADER(x) "" STRING(x)
 
+class VideoGlfw;
+typedef int (*GetVideoDataFun)(VideoGlfw* hadle, uint8_t** data, int64_t* size);
+
 // 视频数据显示类，OpenGL渲染
 class VideoGlfw
 {
@@ -20,11 +24,6 @@ public:
 	/// @brief 
 	VideoGlfw();
 	~VideoGlfw();
-
-private:
-    //uint8_t *m_data = nullptr;
-    int m_width = 0;
-    int m_height = 0;
 
 private:
 	/// @brief 快速日志句柄
@@ -54,12 +53,38 @@ private:
 	/// @brief 2D纹理对象
 	GLuint m_texture_2D;
 
+    /// @brief 视频显示线程
+    std::thread m_show_thread;
+
 public:
+    /// @brief 用户指定指针数据，回调使用
+    void* m_user_data;
+
+    /// @brief 图像宽度
+    int m_width = 0;
+
+    /// @brief 图像高度
+    int m_height = 0;
+
+    /// @brief 回调函数指针
+    GetVideoDataFun m_glfw_callback;
+
+    /// @brief 启动播放线程
+    void Start();
+
+
+private:
+    void ProcessInput(GLFWwindow* window);
+
+    void ExitVideoAngel();
+
+    int ThreadShow();
+
     /// @brief 初始化GLFW的各种参数
     /// @param width 视频数据宽度
     /// @param height 高度
     /// @return 0成功
-    int InitVideoGlfw(int width, int height);
+    int InitVideoGlfw();
 
     /// @brief 显示数据
     /// @param width 宽度
@@ -67,11 +92,6 @@ public:
     /// @param data 数据
     /// @return 
     int ShowVideo(const uint64_t& width, const uint64_t& height, const uint8_t* data);
-
-private:
-    void ProcessInput(GLFWwindow* window);
-
-    void ExitVideoAngel();
 
 private:
     /// @brief 顶点渲染器坐标设置

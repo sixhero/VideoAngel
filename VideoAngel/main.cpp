@@ -6,26 +6,55 @@
 #include "LowAudio.h"
 #include "Common.h"
 
+
+int glfw_callback(VideoGlfw *video_glfw, uint8_t** data, int64_t* size)
+{
+	static VideoData video_data;
+	VideoDesc* video_desc = (VideoDesc *)video_glfw->m_user_data;
+	video_desc->GetVideoData(&video_data);
+	//memcpy(data, video_data._data, video_data.size);
+	*data = video_data._data;
+	*size = video_data.size;
+	return 0;
+}
+
+int low_audio_callback(LowAudio* video_glfw, uint8_t** data, int64_t* size)
+{
+	static AudioData audio_data;
+	VideoDesc* video_desc = (VideoDesc*)video_glfw->m_user_data;
+	video_desc->GetAudioData(&audio_data);
+	*data = audio_data._data;
+	*size = audio_data.size;
+	return 0;
+}
+
 int main(int argc, char* argv[])
 {
 	int ret;
-	VideoGlfw video_glfw;
-	ret = video_glfw.InitVideoGlfw(1920,1080);
-
 	VideoDesc video_desc;
-	ret = video_desc.InitVideoDesc(R"(C:\Users\sixhe\Desktop\dayu.mp3)");
+	//ret = video_desc.InitVideoDesc(R"(C:\Users\sixhe\Desktop\dayu.mp3)");
 	//ret = video_desc.InitVideoDesc(R"(E:\WebD\workdead.mp4)");
+	ret = video_desc.InitVideoDesc(R"(E:\vivi.mp4)");
+	//ret = video_desc.InitVideoDesc(R"(rtmp://ns8.indexforce.com/home/mystream)");
+	//ret = video_desc.InitVideoDesc("F:\\pr_work\\倒数.mp4");
+	//ret = video_desc.InitVideoDesc(R"(E:\BiteMe-AvrilLavigne.mp4)"); 
+	//ret = video_desc.InitVideoDesc("F:\\au_work\\vivi\\vivi_.mp3");
+	Sleep(20);
+
+
+	VideoGlfw video_glfw;
+	video_glfw.m_user_data = &video_desc;
+	video_glfw.m_width = video_desc.GetVideoWidth();
+	video_glfw.m_height = video_desc.GetVideoHeight();
+	video_glfw.m_glfw_callback = glfw_callback;
+	video_glfw.Start();
 
 	LowAudio low_audio;
-	//low_audio.InitAudio(video_desc.GetAudioChannels(), video_desc.GetAudioSampleRate(), (void*)&video_desc);
+	low_audio.m_low_data_callback = low_audio_callback;
+	low_audio.m_user_data = &video_desc;
+	low_audio.InitAudio(video_desc.GetAudioChannels(), video_desc.GetAudioSampleRate());
+	low_audio.Start();
 
-	VideoData* video_data = new VideoData;
-	while (true)
-	{
-		//ret = video_desc.GetVideoData(video_data);
-		//ret = video_glfw.ShowVideo(video_desc.GetVideoWidth(), video_desc.GetVideoHeight(), video_data->_data);
-		Sleep(1);
-	}
 
 	std::cout << "hello word";
 	system("pause");

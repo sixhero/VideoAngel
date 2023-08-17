@@ -15,7 +15,7 @@ void FramebufferSizeCallback(GLFWwindow* window, int width, int height)
 	glad_glViewport(0, 0, width, height);
 }
 
-int VideoGlfw::InitVideoGlfw(int width,int height)
+int VideoGlfw::InitVideoGlfw()
 {
 
 	int state = glfwInit();
@@ -134,11 +134,6 @@ int VideoGlfw::InitVideoGlfw(int width,int height)
 
 	//注册窗口变动回调函数
 	glfwSetFramebufferSizeCallback(m_glfw_window, &FramebufferSizeCallback);
-
-	//初始化渲染数据
-	m_width = width;
-	m_height = height;
-
 	return 0;
 }
 
@@ -185,6 +180,12 @@ int VideoGlfw::ShowVideo(const uint64_t& width, const uint64_t& height, const ui
 	return -1;
 }
 
+void VideoGlfw::Start()
+{
+	m_show_thread = std::thread(&VideoGlfw::ThreadShow,this);
+	m_show_thread.detach();
+}
+
 void VideoGlfw::ProcessInput(GLFWwindow* window)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -205,4 +206,19 @@ void VideoGlfw::ExitVideoAngel()
 	m_glfw_window = nullptr;
 
 	m_logger->info("退出视频渲染器");
+}
+
+int VideoGlfw::ThreadShow()
+{
+	InitVideoGlfw();
+	uint8_t** data = new uint8_t*;
+	int64_t data_size;
+	while (true)
+	{
+		m_glfw_callback(this, data, &data_size);
+		ShowVideo(m_width, m_height, *data);
+		Sleep(2);
+	}
+	delete data;
+	return 0;
 }

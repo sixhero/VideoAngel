@@ -3,7 +3,7 @@
 #
 
 # 将源代码添加到此项目的可执行文件。
-add_executable (VideoAngel "VideoAngel.cpp" "VideoAngel.h" "main.cpp" "VideoGlfw.h" "VideoGlfw.cpp" "Common.h" "VideoDesc.h" "VideoDesc.cpp" "LowAudio.cpp" "LowAudio.h")
+add_executable (VideoAngel "VideoAngel.cpp" "VideoAngel.h" "main.cpp" "VideoGlfw.h" "VideoGlfw.cpp" "Common.h" "VideoDesc.h" "VideoDesc.cpp" "LowAudio.cpp" "LowAudio.h" "CircleBuffer.h" "CircleBuffer.cpp")
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET VideoAngel PROPERTY CXX_STANDARD 20)

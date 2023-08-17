@@ -6,6 +6,10 @@
 
 #include <miniaudio.h>
 #include <string>
+#include "CircleBuffer.h"
+
+class LowAudio;
+typedef int (*GetAudioDataFun)(LowAudio* hadle, uint8_t** data, int64_t* size);
 
 class LowAudio
 {
@@ -20,9 +24,25 @@ private:
 	int m_channels;
 	int m_sample_rate;
 
+	std::thread m_data_thread;
 
 public:
-	int InitAudio(int channels, int sample_rate, void* user_data);
+
+	CircleBuffer m_audio_buff = {};
+
+	bool m_buff_is_ok;
+
+	/// @brief 用户指定指针数据，回调使用
+	void* m_user_data;
+	GetAudioDataFun m_low_data_callback;
+
+private:
+	int ThreadData();
+
+public:
+	int InitAudio(int channels, int sample_rate);
+
+	void Start();
 
 };
 #endif // !LOW_AUDIO
