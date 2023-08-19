@@ -11,21 +11,20 @@ int glfw_callback(VideoGlfw *video_glfw, uint8_t** data, int64_t* size)
 {
 	static VideoData video_data;
 	VideoDesc* video_desc = (VideoDesc *)video_glfw->m_user_data;
-	video_desc->GetVideoData(&video_data);
-	//memcpy(data, video_data._data, video_data.size);
+	int ret = video_desc->GetVideoData(&video_data);
 	*data = video_data._data;
 	*size = video_data.size;
-	return 0;
+	return ret;
 }
 
 int low_audio_callback(LowAudio* video_glfw, uint8_t** data, int64_t* size)
 {
 	static AudioData audio_data;
 	VideoDesc* video_desc = (VideoDesc*)video_glfw->m_user_data;
-	video_desc->GetAudioData(&audio_data);
+	int ret = video_desc->GetAudioData(&audio_data);
 	*data = audio_data._data;
 	*size = audio_data.size;
-	return 0;
+	return ret;
 }
 
 int main(int argc, char* argv[])
@@ -34,11 +33,11 @@ int main(int argc, char* argv[])
 	VideoDesc video_desc;
 	//ret = video_desc.InitVideoDesc(R"(C:\Users\sixhe\Desktop\dayu.mp3)");
 	//ret = video_desc.InitVideoDesc(R"(E:\WebD\workdead.mp4)");
-	ret = video_desc.InitVideoDesc(R"(E:\vivi.mp4)");
+	//ret = video_desc.InitVideoDesc(R"(E:\vivi.mp4)");
 	//ret = video_desc.InitVideoDesc(R"(rtmp://ns8.indexforce.com/home/mystream)");
 	//ret = video_desc.InitVideoDesc("F:\\pr_work\\倒数.mp4");
 	//ret = video_desc.InitVideoDesc(R"(E:\BiteMe-AvrilLavigne.mp4)"); 
-	//ret = video_desc.InitVideoDesc("F:\\au_work\\vivi\\vivi_.mp3");
+	ret = video_desc.InitVideoDesc("F:\\au_work\\vivi\\vivi_.mp3");
 	Sleep(20);
 
 

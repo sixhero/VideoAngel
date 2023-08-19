@@ -2,6 +2,8 @@
 #include "LowAudio.h"
 #include "VideoDesc.h"
 
+FILE* file_pcm = fopen(R"(C:\Users\sixhe\Desktop\Test.pcm)","rb");
+
 //音频数据回调函数
 void data_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frameCount)
 {
@@ -18,6 +20,7 @@ void data_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uin
     if (low_audio->m_buff_is_ok)
     {
         low_audio->m_audio_buff.ReadBuffer((uint8_t*)pOutput, size);
+        //fread_s(pOutput, size, 1, size, file_pcm);
     }
 }
 

@@ -22,6 +22,7 @@ bool CircleBuffer::WriteBuffer(const uint8_t* data, const int64_t data_length)
 	//此值为正--缓冲区已经使用的空间大小
 	//此值为负--缓冲区未使用的的空间大小
 	int64_t size_tmp = buffer_end - buffer_start;
+	m_mutex.lock();
 	if (size_tmp >= 0)
 	{
 		//环形缓冲区起始结束位置正向排序
@@ -44,13 +45,14 @@ bool CircleBuffer::WriteBuffer(const uint8_t* data, const int64_t data_length)
 			buffer_end += data_length;
 		}
 	}
-	else if (size_tmp < 0)
+	else
 	{
 		//环形缓冲区起始结束位置逆向排序，跨过了真实内存块的起始结束位置
 		memcpy(buffer + buffer_end, data, data_length);
 		buffer_free -= data_length;
 		buffer_end += data_length;
 	}
+	m_mutex.unlock();
 	return true;
 }
 
@@ -63,6 +65,7 @@ int64_t CircleBuffer::ReadBuffer(uint8_t* data, const int64_t data_length)
 		//缓存空间没有数据
 		return -1;
 	}
+	m_mutex.lock();
 	if (buffer_used < data_length)
 	{
 		//取出数据小于要求的数据量
@@ -70,7 +73,7 @@ int64_t CircleBuffer::ReadBuffer(uint8_t* data, const int64_t data_length)
 		//此值为正--缓冲区已经使用的空间大小
 		//此值为负--缓冲区未使用的的空间大小
 		int64_t size_tmp = buffer_end - buffer_start;
-		if (size_tmp >= 0)
+		if (size_tmp > 0)
 		{
 			memcpy(data, buffer + buffer_start, size_tmp);
 			buffer_start += size_tmp;
@@ -83,16 +86,16 @@ int64_t CircleBuffer::ReadBuffer(uint8_t* data, const int64_t data_length)
 			buffer_start = buffer_end;
 			buffer_free = buffer_end + (buffer_size - buffer_start);
 		}
+		m_mutex.unlock();
 		return buffer_used;
 	}
 	else
 	{
 		//取出数据等于要求的数据量
-
 		//此值为正--缓冲区已经使用的空间大小
 		//此值为负--缓冲区未使用的的空间大小
 		int64_t size_tmp = buffer_end - buffer_start;
-		if (size_tmp >= 0)
+		if (size_tmp > 0)
 		{
 			memcpy(data, buffer + buffer_start, data_length);
 			buffer_start += data_length;
@@ -115,8 +118,10 @@ int64_t CircleBuffer::ReadBuffer(uint8_t* data, const int64_t data_length)
 				buffer_free += data_length;
 			}
 		}
+		m_mutex.unlock();
 		return data_length;
 	}
+	m_mutex.unlock();
 	return -1;
 }
 
