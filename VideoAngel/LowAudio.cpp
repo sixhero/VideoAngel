@@ -1,32 +1,37 @@
 #define MINIAUDIO_IMPLEMENTATION
 #include "LowAudio.h"
 #include "VideoDesc.h"
+#include <iostream>
+#include <chrono>
 
-FILE* file_pcm = fopen(R"(C:\Users\sixhe\Desktop\Test.pcm)","rb");
+FILE* file_low = fopen("E:\\Test3.pcm", "wb+");
 
 //音频数据回调函数
 void data_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frameCount)
 {
     LowAudio* low_audio = (LowAudio*)pDevice->pUserData;
     int size = frameCount * 2 * 2;
-    int free_size = low_audio->m_audio_buff.GetBufferUsed();
-    if (size > free_size)
+    int use_size = low_audio->m_audio_buff.get_used_size();
+    if (size > use_size)
     {
         //缓冲区数据不足，禁止获取数据
+        low_audio->m_logger->info("缓冲区数据不足，禁止获取数据");
         low_audio->m_buff_is_ok = false;
-        Sleep(1);
+        Sleep(10);
     	return;
     }
     if (low_audio->m_buff_is_ok)
     {
-        low_audio->m_audio_buff.ReadBuffer((uint8_t*)pOutput, size);
-        //fread_s(pOutput, size, 1, size, file_pcm);
+        low_audio->m_audio_buff.read_data((uint8_t*)pOutput, size);
+        //fwrite(pOutput, 1, size, file_low);
     }
 }
 
 LowAudio::LowAudio()
 {
     m_buff_is_ok = false;
+    m_logger = spdlog::stdout_color_mt("LowAudio");
+    m_logger->info("初始化！！！");
 }
 
 LowAudio::~LowAudio()
@@ -39,7 +44,7 @@ int LowAudio::InitAudio(int channels, int sample_rate)
     m_sample_rate = sample_rate;
 
     //数据缓冲区大小设置为1秒左右的空间大小
-    m_audio_buff.InitCircleBuffer(sample_rate * channels * 2);
+    m_audio_buff.Init(sample_rate * channels * 2);
 
     m_decoder.outputFormat = ma_format::ma_format_s16;
     m_decoder.outputChannels = m_channels;
@@ -73,19 +78,24 @@ void LowAudio::Start()
     m_data_thread = std::thread(&LowAudio::ThreadData, this);
     m_data_thread.detach();
 }
-
+FILE* file_low_audio = fopen("E:\\Test2.pcm", "wb+");
 int LowAudio::ThreadData()
 {
     uint8_t** data = new uint8_t*;
-    int64_t data_size;
+    int64_t data_size = 0;
+    uint32_t write_size;
     while (true)
     {
-        m_low_data_callback(this, data, &data_size);
-        while (true != m_audio_buff.WriteBuffer(*data, data_size))
+        if (m_low_data_callback(this, data, &data_size) == 0)
         {
-            //缓冲区已满允许回调音频数据
-            m_buff_is_ok = true;
-            Sleep(1);
+            //fwrite(*data, 1, data_size, file_low_audio);
+            write_size = 0;
+
+            while (data_size != (write_size += m_audio_buff.write_data(*data+write_size, data_size-write_size)))
+            {
+                m_buff_is_ok = true;
+                Sleep(10);
+            }
         }
     }
     delete data;    

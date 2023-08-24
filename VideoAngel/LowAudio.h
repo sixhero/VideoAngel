@@ -6,7 +6,8 @@
 
 #include <miniaudio.h>
 #include <string>
-#include "CircleBuffer.h"
+//#include "CircleBuffer.h"
+#include "RingBuffer.h"
 
 class LowAudio;
 typedef int (*GetAudioDataFun)(LowAudio* hadle, uint8_t** data, int64_t* size);
@@ -28,7 +29,8 @@ private:
 
 public:
 
-	CircleBuffer m_audio_buff = {};
+	//CircleBuffer m_audio_buff = {};
+	RingBuffer m_audio_buff;
 
 	bool m_buff_is_ok;
 
@@ -43,6 +45,8 @@ public:
 	int InitAudio(int channels, int sample_rate);
 
 	void Start();
+
+	std::shared_ptr<spdlog::logger> m_logger;
 
 };
 #endif // !LOW_AUDIO

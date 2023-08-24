@@ -28,7 +28,7 @@ bool CircleBuffer::WriteBuffer(const uint8_t* data, const int64_t data_length)
 		//环形缓冲区起始结束位置正向排序
 
 		int64_t max_end_minus = buffer_size - buffer_end;//缓冲区最大值位置减缓冲区有效结尾位置的差值
-		if (data_length > max_end_minus)
+		if (data_length >= max_end_minus)
 		{
 			//存入的数据尺寸要经过缓冲区头尾
 
@@ -112,9 +112,9 @@ int64_t CircleBuffer::ReadBuffer(uint8_t* data, const int64_t data_length)
 			}
 			else
 			{
-				memcpy(data, buffer + buffer_start, buffer_size - buffer_start);
-				memcpy(data, buffer, data_length - (buffer_size - buffer_start));
-				buffer_start = data_length - (buffer_size - buffer_start);
+				memcpy(data, buffer + buffer_start, max_start_minus);
+				memcpy(data, buffer, data_length - max_start_minus);
+				buffer_start = data_length - max_start_minus;
 				buffer_free += data_length;
 			}
 		}

@@ -1,5 +1,5 @@
 #include "VideoDesc.h"
-#define STB_IMAGE_WRITE_IMPLEMENTATION
+//#define STB_IMAGE_WRITE_IMPLEMENTATION
 //#include "stb_image_write.h"
 
 VideoDesc::VideoDesc()
@@ -180,7 +180,7 @@ int VideoDesc::GetVideoData(VideoData* video_data)
 {
 	if (m_video_frame_queue.size() <= 0)
 	{
-		m_logger->info("视频帧队列数据为空");
+		//m_logger->info("视频帧队列数据为空");
 		Sleep(2);
 		return -1;
 	}
@@ -196,7 +196,7 @@ int VideoDesc::GetVideoData(VideoData* video_data)
 		//进行数据同步
 		if (_pts_ > 0 && _pts_ < 2000)
 		{
-			//m_logger->info("睡眠时间：" + std::to_string(_pts_));
+			m_logger->info("睡眠时间：" + std::to_string(_pts_));
 			Sleep(_pts_);
 		}
 	}
@@ -205,8 +205,8 @@ int VideoDesc::GetVideoData(VideoData* video_data)
 		Sleep(1000 / m_video_fps);
 	}
 	int ret;
-	//int video_size = av_image_get_buffer_size(AV_PIX_FMT_BGR32, m_video_width, m_video_height, 4);
-	int video_size = m_video_height * m_video_width * 4;
+	int video_size = av_image_get_buffer_size(AV_PIX_FMT_BGR32, m_video_width, m_video_height, 4);
+	//int video_size = m_video_height * m_video_width * 4;
 	if (video_size <= 0)
 	{
 		m_logger->warn(std::string("获取图像缓冲大小失败 ") + av_make_error_string(m_av_errbuff, AV_ERROR_MAX_STRING_SIZE, video_size));
@@ -253,13 +253,13 @@ END:
 	//stbi_write_png("E:\\Test.png", m_video_width, m_video_height, 4, video_data->_data, 0);
 	return ret;
 }
-FILE* file = fopen("E:\\Test.pcm", "wb+");
+FILE* file = fopen("E:\\Test1.pcm", "wb+");
 int VideoDesc::GetAudioData(AudioData* audio_data)
 {
 	if (m_audio_frame_queue.size() <= 0)
 	{
 		m_logger->info("音频帧队列数据为空");
-		Sleep(2);
+		Sleep(20);
 		return -1;
 	}
 	AVFrame* frame = m_audio_frame_queue.front();
@@ -273,7 +273,6 @@ int VideoDesc::GetAudioData(AudioData* audio_data)
 		ret = -6;
 		goto END;
 	}
-
 	//初始化音频缓冲内存块
 	if (audio_data->size != audio_size)
 	{
@@ -355,6 +354,7 @@ int VideoDesc::AVDecode()
 		{
 			m_logger->warn(std::string("发送数据包到视频解码器上下文失败 ") + av_make_error_string(m_av_errbuff, AV_ERROR_MAX_STRING_SIZE, ret));
 			ret = -2;
+			av_frame_free(&frame);
 			goto END;
 		}
 
@@ -364,9 +364,9 @@ int VideoDesc::AVDecode()
 		{
 			m_logger->warn(std::string("接收视频解码器输出的数据帧不可用 ") + av_make_error_string(m_av_errbuff, AV_ERROR_MAX_STRING_SIZE, ret));
 			ret = -3;
+			av_frame_free(&frame);
 			goto END;
 		}
-
 		m_video_frame_queue.push(frame);
 	}
 	else if (m_av_packet->stream_index == m_audio_index)
@@ -374,10 +374,11 @@ int VideoDesc::AVDecode()
 		AVFrame* frame = av_frame_alloc();
 		//发送数据包到音频解码器上下文
 		ret = avcodec_send_packet(m_av_audio_code_context, m_av_packet);
-		if (ret < 0)
+		if (ret != 0)
 		{
 			m_logger->warn(std::string("发送数据包到音频解码器上下文失败 ") + av_make_error_string(m_av_errbuff, AV_ERROR_MAX_STRING_SIZE, ret));
 			ret = -2;
+			av_frame_free(&frame);
 			goto END;
 		}
 		//获取到图片可用数据
@@ -386,6 +387,7 @@ int VideoDesc::AVDecode()
 		{
 			m_logger->warn(std::string("接收音频解码器输出的数据帧不可用 ") + av_make_error_string(m_av_errbuff, AV_ERROR_MAX_STRING_SIZE, ret));
 			ret = -3;
+			av_frame_free(&frame);
 			goto END;
 		}
 		m_audio_frame_queue.push(frame);

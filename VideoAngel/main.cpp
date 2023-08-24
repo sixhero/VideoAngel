@@ -34,10 +34,15 @@ int main(int argc, char* argv[])
 	//ret = video_desc.InitVideoDesc(R"(C:\Users\sixhe\Desktop\dayu.mp3)");
 	//ret = video_desc.InitVideoDesc(R"(E:\WebD\workdead.mp4)");
 	//ret = video_desc.InitVideoDesc(R"(E:\vivi.mp4)");
-	//ret = video_desc.InitVideoDesc(R"(rtmp://ns8.indexforce.com/home/mystream)");
+	ret = video_desc.InitVideoDesc(R"(rtmp://ns8.indexforce.com/home/mystream)");
 	//ret = video_desc.InitVideoDesc("F:\\pr_work\\倒数.mp4");
 	//ret = video_desc.InitVideoDesc(R"(E:\BiteMe-AvrilLavigne.mp4)"); 
-	ret = video_desc.InitVideoDesc("F:\\au_work\\vivi\\vivi_.mp3");
+	//ret = video_desc.InitVideoDesc("F:\\au_work\\vivi\\vivi_.mp3");
+	//ret = video_desc.InitVideoDesc(R"(http://devimages.apple.com/iphone/samples/bipbop/gear1/prog_index.m3u8)");
+	//ret = video_desc.InitVideoDesc(R"(https://v11.toutiaovod.com/db52f952e1495d3e36e1a31adb78a567/64e6167d/video/tos/cn/tos-cn-ve-4/okEBiCgbjJDDeaBhCaniFf8aCIaRAAIgUW2eRA/)");
+	//ret = video_desc.InitVideoDesc(R"(rtmp://media3.scctv.net/live/scctv_800)");
+	//ret = video_desc.InitVideoDesc(R"(rtmp://mobliestream.c3tv.com:554/live/goodtv.sdp)");
+	//ret = video_desc.InitVideoDesc(R"(https://sf1-hscdn-tos.pstatp.com/obj/media-fe/xgplayer_doc_video/flv/xgplayer-demo-360p.flv)");
 	Sleep(20);
 
 
