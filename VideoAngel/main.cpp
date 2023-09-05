@@ -34,8 +34,8 @@ int main(int argc, char* argv[])
 	//ret = video_desc.InitVideoDesc(R"(C:\Users\sixhe\Desktop\dayu.mp3)");
 	//ret = video_desc.InitVideoDesc(R"(E:\WebD\workdead.mp4)");
 	//ret = video_desc.InitVideoDesc(R"(E:\vivi.mp4)");
-	ret = video_desc.InitVideoDesc(R"(rtmp://ns8.indexforce.com/home/mystream)");
-	//ret = video_desc.InitVideoDesc("F:\\pr_work\\倒数.mp4");
+	//ret = video_desc.InitVideoDesc(R"(rtmp://ns8.indexforce.com/home/mystream)");
+	//ret = video_desc.InitVideoDesc(R"(F:\pr_work\倒数.mp4)");
 	//ret = video_desc.InitVideoDesc(R"(E:\BiteMe-AvrilLavigne.mp4)"); 
 	//ret = video_desc.InitVideoDesc("F:\\au_work\\vivi\\vivi_.mp3");
 	//ret = video_desc.InitVideoDesc(R"(http://devimages.apple.com/iphone/samples/bipbop/gear1/prog_index.m3u8)");
@@ -43,21 +43,29 @@ int main(int argc, char* argv[])
 	//ret = video_desc.InitVideoDesc(R"(rtmp://media3.scctv.net/live/scctv_800)");
 	//ret = video_desc.InitVideoDesc(R"(rtmp://mobliestream.c3tv.com:554/live/goodtv.sdp)");
 	//ret = video_desc.InitVideoDesc(R"(https://sf1-hscdn-tos.pstatp.com/obj/media-fe/xgplayer_doc_video/flv/xgplayer-demo-360p.flv)");
+	//ret = video_desc.InitVideoDesc(R"(https://1080p.jszyplay.com/play/negPBlra/index.m3u8)");
+	ret = video_desc.InitVideoDesc(R"(udp://192.168.0.119:6811)");
 	Sleep(20);
 
 
 	VideoGlfw video_glfw;
-	video_glfw.m_user_data = &video_desc;
-	video_glfw.m_width = video_desc.GetVideoWidth();
-	video_glfw.m_height = video_desc.GetVideoHeight();
-	video_glfw.m_glfw_callback = glfw_callback;
-	video_glfw.Start();
+	if (video_desc.GetVideoIndex() != -1)
+	{
+		video_glfw.m_user_data = &video_desc;
+		video_glfw.m_width = video_desc.GetVideoWidth();
+		video_glfw.m_height = video_desc.GetVideoHeight();
+		video_glfw.m_glfw_callback = glfw_callback;
+		video_glfw.Start();
+	}
 
 	LowAudio low_audio;
-	low_audio.m_low_data_callback = low_audio_callback;
-	low_audio.m_user_data = &video_desc;
-	low_audio.InitAudio(video_desc.GetAudioChannels(), video_desc.GetAudioSampleRate());
-	low_audio.Start();
+	if (video_desc.GetAudioIndex() != -1)
+	{
+		low_audio.m_low_data_callback = low_audio_callback;
+		low_audio.m_user_data = &video_desc;
+		low_audio.InitAudio(video_desc.GetAudioChannels(), video_desc.GetAudioSampleRate());
+		low_audio.Start();
+	}
 
 
 	std::cout << "hello word";

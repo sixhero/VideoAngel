@@ -334,6 +334,16 @@ int VideoDesc::GetAudioSampleRate()
 	return m_audio_sample_rate;
 }
 
+int VideoDesc::GetVideoIndex()
+{
+	return m_video_index;
+}
+
+int VideoDesc::GetAudioIndex()
+{
+	return m_audio_index;
+}
+
 int VideoDesc::AVDecode()
 {
 	//开始读取数据源的数据包
@@ -401,9 +411,11 @@ void VideoDesc::ThreadDesc()
 {
 	while (true)
 	{
-		if (m_audio_frame_queue.size() > 100 && m_video_frame_queue.size() > 100)
+		if (m_audio_frame_queue.size() > 100 || m_video_frame_queue.size() > 100)
+		//if ((m_audio_index != -1 && m_audio_frame_queue.size() > 100) || (m_video_index != -1 && m_video_frame_queue.size() > 100))
 		{
 			Sleep(20);
+			continue;
 		}
 		if (AVDecode() == AVERROR_EOF)
 		{
@@ -411,3 +423,4 @@ void VideoDesc::ThreadDesc()
 		}
 	}
 }
+ 

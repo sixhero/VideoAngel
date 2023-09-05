@@ -127,6 +127,9 @@ public:
 
 	int GetAudioSampleRate();
 
+	int GetVideoIndex();
+	int GetAudioIndex();
+
 
 };
 
