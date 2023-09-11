@@ -1,5 +1,5 @@
 #include "VideoGlfw.h"
-
+#include <chrono>
 VideoGlfw::VideoGlfw()
 {
 	m_logger = spdlog::stdout_color_mt("VideoGlfw");
@@ -13,6 +13,7 @@ VideoGlfw::~VideoGlfw()
 void FramebufferSizeCallback(GLFWwindow* window, int width, int height)
 {
 	glad_glViewport(0, 0, width, height);
+	//ChangeVtex
 }
 
 int VideoGlfw::InitVideoGlfw()
@@ -24,7 +25,7 @@ int VideoGlfw::InitVideoGlfw()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
+	//glfwWindowHint(GLFW_DECORATED, GL_FALSE);
 	//初始化窗口
 	m_glfw_window = glfwCreateWindow(864, 486, "VideoAngel", NULL, NULL);
 	if (m_glfw_window == nullptr)
@@ -46,6 +47,7 @@ int VideoGlfw::InitVideoGlfw()
 
 	//设置窗口尺寸
 	glad_glViewport(0, 0, 864, 486);
+
 
 
 	//生成纹理对象，第一个参数为数量，第二个参数为纹理的对象数组，存放申请的纹理对象数组
@@ -119,7 +121,7 @@ int VideoGlfw::InitVideoGlfw()
 	glad_glBindVertexArray(m_VAO);
 
 	//绑定元素缓冲对象，绘制的区域
-   //GL_ELEMENT_ARRAY_BUFFER类型会被glad_glDrawElements触发
+    //GL_ELEMENT_ARRAY_BUFFER类型会被glad_glDrawElements触发
 	glad_glGenBuffers(1, &m_EBO);
 	glad_glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
 	glad_glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
@@ -134,6 +136,7 @@ int VideoGlfw::InitVideoGlfw()
 
 	//注册窗口变动回调函数
 	glfwSetFramebufferSizeCallback(m_glfw_window, &FramebufferSizeCallback);
+
 	return 0;
 }
 
@@ -149,8 +152,20 @@ int VideoGlfw::ShowVideo(const uint64_t& width, const uint64_t& height, const ui
 		//处理数据输入
 		ProcessInput(m_glfw_window);
 
+		//auto start = std::chrono::steady_clock::now();
+		//rgb_2_mat(data, width, height);
+		//auto end = std::chrono::steady_clock::now();
+
+		//std::cout << std::chrono::duration<double, std::milli>(end - start).count();
+
 		//生成纹理
-		glad_glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		glad_glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		int width, height;
+		glfwGetWindowSize(m_glfw_window, &width, &height);
+		//glfwsetwin
+		ChangeVtex(vertices, m_dar_w, m_dar_h, width, height);
+
+		glad_glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
 		//m_logger->
 		glad_glClearColor(0.5f, 0.5f, 0.5f, 0.5f);
@@ -163,7 +178,7 @@ int VideoGlfw::ShowVideo(const uint64_t& width, const uint64_t& height, const ui
 		glad_glBindVertexArray(m_VAO);
 
 		//渲染多边形（矩形）区域
-		//glad_glDrawArrays(GL_POLYGON, 0, 4);
+		//glad_glDrawArrays(GL_POLYGON, 0, 3);
 		
 		//渲染区域
 		glad_glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -186,11 +201,45 @@ void VideoGlfw::Start()
 	m_show_thread.detach();
 }
 
+bool VideoGlfw::ChangeVtex(float* vtex, double video_width, double video_height, double view_width, double view_height)
+{
+	double video_scale = video_width / video_height;
+	double view_scale = view_width / view_height;
+
+	if (video_scale > view_scale)
+	{
+		video_height = (1.0f / video_scale) * view_width;
+		video_width = view_width;
+		float x = video_height / view_height;
+		vtex[1] = vtex[1 + 3 * 5] = x;
+		vtex[1 + 5] = vtex[1 + 2 * 5] = -x;
+		vtex[0] = vtex[0 + 5] = 1;
+		vtex[0 + 3 * 5] = vtex[0 + 2 * 5] = -1;
+		//vtex[]
+
+	}
+	else
+	{
+		video_width = video_scale * view_height;
+		video_height = view_height;
+		float x = video_width / view_width;
+		vtex[0] = vtex[0 + 5] = x;
+		vtex[0 + 3 * 5] = vtex[0 + 2 * 5] = -x;
+		vtex[1] = vtex[1 + 3 * 5] = 1;
+		vtex[1 + 5] = vtex[1 + 2 * 5] = -1;
+
+	}
+	return false;
+}
+
 void VideoGlfw::ProcessInput(GLFWwindow* window)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 	{
 		glfwSetWindowShouldClose(window, true);
+	}
+	if (glfwGetMouseButton(window, GLFW_GAMEPAD_BUTTON_DPAD_DOWN) == GLFW_PRESS)
+	{
 	}
 }
 

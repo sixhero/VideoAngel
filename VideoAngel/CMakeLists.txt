@@ -17,7 +17,7 @@ add_executable (VideoAngel	"VideoAngel.cpp"
 							"CircleBuffer.cpp"
 							"RingBuffer.h"
 							"RingBuffer.cpp"
-)
+ "CvOperater.cpp" "CvOperater.h")
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET VideoAngel PROPERTY CXX_STANDARD 20)
@@ -42,5 +42,9 @@ target_link_libraries(VideoAngel PRIVATE spdlog::spdlog_header_only)
 
 find_package(Stb REQUIRED)
 target_include_directories(VideoAngel PRIVATE ${Stb_INCLUDE_DIR})
+
+find_package(OpenCV CONFIG REQUIRED)
+target_link_libraries(VideoAngel PRIVATE opencv_ml opencv_core opencv_highgui opencv_cudaimgproc)
+# opencv_dnn  opencv_flann
 
 # TODO: 如有需要，请添加测试并安装目标。

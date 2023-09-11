@@ -14,6 +14,9 @@
 #define STRING(x) #x
 #define SHADER(x) "" STRING(x)
 
+
+#include "CvOperater.h"
+
 class VideoGlfw;
 typedef int (*GetVideoDataFun)(VideoGlfw* hadle, uint8_t** data, int64_t* size);
 
@@ -66,11 +69,20 @@ public:
     /// @brief 图像高度
     int m_height = 0;
 
+    /// @brief 显示视频比例宽
+    int m_dar_w;
+
+    /// @brief 显示视频比例高
+    int m_dar_h;
+
     /// @brief 回调函数指针
     GetVideoDataFun m_glfw_callback;
 
     /// @brief 启动播放线程
     void Start();
+
+    //
+    bool ChangeVtex(float* vtex, double video_width, double video_height, double view_width, double view_height);
 
 
 private:
@@ -95,7 +107,7 @@ private:
 
 private:
     /// @brief 顶点渲染器坐标设置
-    const float vertices[4 * 5] = {
+    float vertices[4 * 5] = {
         //渲染的位置                   纹理坐标
         1.0f,1.0f,0.0f,             1.0f,0.0f,
         1.0f,-1.0f,0.0f,            1.0f,1.0f,
@@ -125,9 +137,7 @@ private:
     const char* fragment_shader_source = (char*)SHADER(\
         #version 330 core\n
         out vec4 FragColor;
-
         in vec2 TexCoord;
-
         uniform sampler2D ourTexture;
 
         void main()

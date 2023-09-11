@@ -1,7 +1,6 @@
 #include "VideoDesc.h"
 //#define STB_IMAGE_WRITE_IMPLEMENTATION
 //#include "stb_image_write.h"
-
 VideoDesc::VideoDesc()
 {
 	m_logger = spdlog::stdout_color_mt("VideoDesc");
@@ -14,6 +13,7 @@ VideoDesc::~VideoDesc()
 
 int VideoDesc::InitVideoDesc(std::string source_url)
 {
+	avdevice_register_all();
 	m_source_url = source_url;
 
 	if (m_source_url.empty())
@@ -21,6 +21,7 @@ int VideoDesc::InitVideoDesc(std::string source_url)
 		m_logger->error("数据源地址为空，返回值-1");
 		return -1;
 	}
+	m_av_format_context = avformat_alloc_context();
 
 	//设置优化参数，对视频源设置固有属性
 	av_dict_set(&m_av_dictionary, "rtsp_transpot", "+udp+tcp", 0);
@@ -30,9 +31,11 @@ int VideoDesc::InitVideoDesc(std::string source_url)
 	av_dict_set(&m_av_dictionary, "stimeout", "2000", 0);
 
 	int ret = 0;
+	const AVInputFormat* ifmt = nullptr;
+	//ifmt = av_find_input_format("dshow");
 
 	//打开数据源地址
-	ret = avformat_open_input(&m_av_format_context, m_source_url.c_str(), nullptr, &m_av_dictionary);
+	ret = avformat_open_input(&m_av_format_context, m_source_url.c_str(), ifmt, &m_av_dictionary);
 	if (ret < 0)
 	{
 		m_logger->error(std::string("数据源地址打开失败 ") + av_make_error_string(m_av_errbuff, AV_ERROR_MAX_STRING_SIZE, ret));
@@ -102,10 +105,15 @@ int VideoDesc::InitVideoDesc(std::string source_url)
 				m_av_video_code_context->pix_fmt,
 				m_av_video_code_context->width,
 				m_av_video_code_context->height,
-				AV_PIX_FMT_BGR32,
+				AV_PIX_FMT_RGB24,
 				SWS_BILINEAR,
 				nullptr, nullptr, nullptr);
 		}
+		int a = av_reduce(&m_video_dar.num, &m_video_dar.den,
+			m_av_video_code_context->width * m_av_video_code_context->sample_aspect_ratio.num,
+			m_av_video_code_context->height * m_av_video_code_context->sample_aspect_ratio.den,
+			1024 * 1024);
+
 		m_video_width = m_av_video_code_context->width;
 		m_video_height = m_av_video_code_context->height;
 		m_video_fps = av_q2d(m_av_format_context->streams[m_video_index]->avg_frame_rate);
@@ -205,7 +213,7 @@ int VideoDesc::GetVideoData(VideoData* video_data)
 		Sleep(1000 / m_video_fps);
 	}
 	int ret;
-	int video_size = av_image_get_buffer_size(AV_PIX_FMT_BGR32, m_video_width, m_video_height, 4);
+	int video_size = av_image_get_buffer_size(AV_PIX_FMT_RGB24, m_video_width, m_video_height, 4);
 	//int video_size = m_video_height * m_video_width * 4;
 	if (video_size <= 0)
 	{
@@ -230,14 +238,14 @@ int VideoDesc::GetVideoData(VideoData* video_data)
 	}
 
 	//初始化目的帧绑定数据缓冲
-	ret = av_image_fill_arrays(m_av_video_frame_dest->data, m_av_video_frame_dest->linesize, video_data->_data, AV_PIX_FMT_BGR32, m_video_width, m_video_height, 4);
+	ret = av_image_fill_arrays(m_av_video_frame_dest->data, m_av_video_frame_dest->linesize, video_data->_data, AV_PIX_FMT_RGB24, m_video_width, m_video_height, 4);
 	if (ret < 0)
 	{
 		m_logger->warn(std::string("绑定目的帧数据缓冲失败 ") + av_make_error_string(m_av_errbuff, AV_ERROR_MAX_STRING_SIZE, ret));
 		ret = -4;
 		goto END;
 	}
-	//视频格式数据转换，转码为RGB32
+	//视频格式数据转换，转码为RGB24
 	ret = sws_scale(m_video_sws_context, frame->data, frame->linesize, 0, m_video_height, m_av_video_frame_dest->data, m_av_video_frame_dest->linesize);
 	if (ret < 0)
 	{
@@ -344,6 +352,12 @@ int VideoDesc::GetAudioIndex()
 	return m_audio_index;
 }
 
+void VideoDesc::GetVideoDar(int& dar_w, int& dar_h)
+{
+	dar_w = m_video_dar.num;
+	dar_h = m_video_dar.den;
+}
+
 int VideoDesc::AVDecode()
 {
 	//开始读取数据源的数据包
@@ -360,7 +374,7 @@ int VideoDesc::AVDecode()
 		AVFrame* frame = av_frame_alloc();
 		//发送数据包到视频解码器上下文
 		ret = avcodec_send_packet(m_av_video_code_context, m_av_packet);
-		if (ret < 0)
+		if (ret != 0)
 		{
 			m_logger->warn(std::string("发送数据包到视频解码器上下文失败 ") + av_make_error_string(m_av_errbuff, AV_ERROR_MAX_STRING_SIZE, ret));
 			ret = -2;

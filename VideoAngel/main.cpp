@@ -33,9 +33,9 @@ int main(int argc, char* argv[])
 	VideoDesc video_desc;
 	//ret = video_desc.InitVideoDesc(R"(C:\Users\sixhe\Desktop\dayu.mp3)");
 	//ret = video_desc.InitVideoDesc(R"(E:\WebD\workdead.mp4)");
-	//ret = video_desc.InitVideoDesc(R"(E:\vivi.mp4)");
+	ret = video_desc.InitVideoDesc(R"(E:\vivi.mp4)");
 	//ret = video_desc.InitVideoDesc(R"(rtmp://ns8.indexforce.com/home/mystream)");
-	//ret = video_desc.InitVideoDesc(R"(F:\pr_work\倒数.mp4)");
+	//ret = video_desc.InitVideoDesc(u8"F:\\pr_work\\倒数.mp4");
 	//ret = video_desc.InitVideoDesc(R"(E:\BiteMe-AvrilLavigne.mp4)"); 
 	//ret = video_desc.InitVideoDesc("F:\\au_work\\vivi\\vivi_.mp3");
 	//ret = video_desc.InitVideoDesc(R"(http://devimages.apple.com/iphone/samples/bipbop/gear1/prog_index.m3u8)");
@@ -44,7 +44,10 @@ int main(int argc, char* argv[])
 	//ret = video_desc.InitVideoDesc(R"(rtmp://mobliestream.c3tv.com:554/live/goodtv.sdp)");
 	//ret = video_desc.InitVideoDesc(R"(https://sf1-hscdn-tos.pstatp.com/obj/media-fe/xgplayer_doc_video/flv/xgplayer-demo-360p.flv)");
 	//ret = video_desc.InitVideoDesc(R"(https://1080p.jszyplay.com/play/negPBlra/index.m3u8)");
-	ret = video_desc.InitVideoDesc(R"(udp://192.168.0.119:6811)");
+	//ret = video_desc.InitVideoDesc(R"(udp://192.168.0.119:6811)");
+	//ret = video_desc.InitVideoDesc(R"(video=HD Webcam)");
+	//ret = video_desc.InitVideoDesc(R"(http://live.cgtn.com/1000/prog_index.m3u8)");
+
 	Sleep(20);
 
 
@@ -54,6 +57,7 @@ int main(int argc, char* argv[])
 		video_glfw.m_user_data = &video_desc;
 		video_glfw.m_width = video_desc.GetVideoWidth();
 		video_glfw.m_height = video_desc.GetVideoHeight();
+		video_desc.GetVideoDar(video_glfw.m_dar_w, video_glfw.m_dar_h);
 		video_glfw.m_glfw_callback = glfw_callback;
 		video_glfw.Start();
 	}

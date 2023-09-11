@@ -11,6 +11,8 @@ extern "C"
 #include <libswresample/swresample.h>
 #include <libswscale/swscale.h>
 #include <libavutil/imgutils.h>
+#include <libavdevice/avdevice.h>
+
 };
 
 #include <queue>
@@ -100,6 +102,9 @@ private:
 	/// @brief 视频数据平均码率
 	int m_video_fps;
 
+	/// @brief 视频实际显示比例width/height
+	AVRational m_video_dar;
+
 private:
 	/// @brief 解包函数
 	/// @return 
@@ -130,7 +135,7 @@ public:
 	int GetVideoIndex();
 	int GetAudioIndex();
 
-
+	void GetVideoDar(int &dar_w,int &dar_h);
 };
 
 #endif // !_VIDEO_DESC_
