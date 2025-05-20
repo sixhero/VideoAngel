@@ -1,4 +1,4 @@
-#ifndef _CV_OPERATER_
+﻿#ifndef _CV_OPERATER_
 #define _CV_OPERATER_
 
 

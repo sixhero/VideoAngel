@@ -1,11 +1,12 @@
-#include <iostream>
+﻿#include <iostream>
 
 ///
 #include "VideoGlfw.h"
 #include "VideoDesc.h"
 #include "LowAudio.h"
 #include "Common.h"
-
+#include <chrono>
+#include <thread>
 
 int glfw_callback(VideoGlfw *video_glfw, uint8_t** data, int64_t* size)
 {
@@ -33,7 +34,7 @@ int main(int argc, char* argv[])
 	VideoDesc video_desc;
 	//ret = video_desc.InitVideoDesc(R"(C:\Users\sixhe\Desktop\dayu.mp3)");
 	//ret = video_desc.InitVideoDesc(R"(E:\WebD\workdead.mp4)");
-	ret = video_desc.InitVideoDesc(R"(E:\vivi.mp4)");
+	//ret = video_desc.InitVideoDesc(R"(E:\vivi.mp4)");
 	//ret = video_desc.InitVideoDesc(R"(rtmp://ns8.indexforce.com/home/mystream)");
 	//ret = video_desc.InitVideoDesc(u8"F:\\pr_work\\倒数.mp4");
 	//ret = video_desc.InitVideoDesc(R"(E:\BiteMe-AvrilLavigne.mp4)"); 
@@ -47,8 +48,17 @@ int main(int argc, char* argv[])
 	//ret = video_desc.InitVideoDesc(R"(udp://192.168.0.119:6811)");
 	//ret = video_desc.InitVideoDesc(R"(video=HD Webcam)");
 	//ret = video_desc.InitVideoDesc(R"(http://live.cgtn.com/1000/prog_index.m3u8)");
+	if(argc != 2)
+	{
+		std::cout<<"未输入播放参数使用默认值\n";
+		ret = video_desc.InitVideoDesc(R"(rtmp://ns8.indexforce.com/home/mystream)");
+	}
+	else
+	{
+		ret = video_desc.InitVideoDesc(argv[1]);
+	}
 
-	Sleep(20);
+	std::this_thread::sleep_for(std::chrono::milliseconds(20));
 
 
 	VideoGlfw video_glfw;
@@ -73,5 +83,6 @@ int main(int argc, char* argv[])
 
 
 	std::cout << "hello word";
-	system("pause");
+	int pause;
+	std::cin>>pause;
 }

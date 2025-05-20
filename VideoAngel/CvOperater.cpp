@@ -1,4 +1,4 @@
-#include "CvOperater.h"
+﻿#include "CvOperater.h"
 
 cv::Mat rgb_2_mat(const void* rgb, const int& width, const int& height)
 {

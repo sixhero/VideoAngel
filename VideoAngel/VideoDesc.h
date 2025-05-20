@@ -1,4 +1,4 @@
-#ifndef _VIDEO_DESC_
+﻿#ifndef _VIDEO_DESC_
 #define _VIDEO_DESC_
 //日志库
 #include <spdlog/spdlog.h>

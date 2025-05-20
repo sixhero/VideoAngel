@@ -1,5 +1,5 @@
-#include "CircleBuffer.h"
-
+﻿#include "CircleBuffer.h"
+#include <cstring>
 void CircleBuffer::InitCircleBuffer(int64_t size)
 {
 	buffer = new uint8_t[size];

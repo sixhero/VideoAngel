@@ -1,4 +1,4 @@
-// 仿制Linux内核中的环形缓冲区
+﻿// 仿制Linux内核中的环形缓冲区
 #include <stdint.h>
 #include <algorithm>
 //#include <atomic>
@@ -61,7 +61,7 @@ public:
 
     /// @brief 获取缓冲区已经使用的大小
     /// @return
-    inline uint32_t get_used_size();
+    uint32_t get_used_size();
 
     /// @brief 获取缓冲区未使用的大小
     /// @return

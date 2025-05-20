@@ -1,5 +1,6 @@
-#include "RingBuffer.h"
+﻿#include "RingBuffer.h"
 #include <atomic>
+#include <cstring>
 
 RingBuffer::RingBuffer(uint32_t size)
 {
@@ -77,7 +78,7 @@ uint32_t RingBuffer::read_data(uint8_t *data, uint32_t size)
     return size;
 }
 
-inline uint32_t RingBuffer::get_used_size()
+uint32_t RingBuffer::get_used_size()
 {
     //return static_cast<uint32_t>(m_in.load(std::memory_order_acquire) - m_out.load(std::memory_order_acquire));
     return static_cast<uint32_t>(m_in - m_out);

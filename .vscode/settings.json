@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "*.qss": "css",
+        "iostream": "cpp",
+        "thread": "cpp",
+        "chrono": "cpp"
+    }
+}

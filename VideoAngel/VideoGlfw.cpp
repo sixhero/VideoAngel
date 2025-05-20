@@ -1,5 +1,6 @@
-#include "VideoGlfw.h"
+﻿#include "VideoGlfw.h"
 #include <chrono>
+#include <thread>
 VideoGlfw::VideoGlfw()
 {
 	m_logger = spdlog::stdout_color_mt("VideoGlfw");
@@ -266,7 +267,7 @@ int VideoGlfw::ThreadShow()
 	{
 		m_glfw_callback(this, data, &data_size);
 		ShowVideo(m_width, m_height, *data);
-		Sleep(2);
+		std::this_thread::sleep_for(std::chrono::milliseconds(2));
 	}
 	delete data;
 	return 0;

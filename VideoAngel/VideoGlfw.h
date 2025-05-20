@@ -1,4 +1,4 @@
-#ifndef _VIDEOGLFW_
+﻿#ifndef _VIDEOGLFW_
 #define _VIDEOGLFW_
 
 #include <iostream>
@@ -15,7 +15,7 @@
 #define SHADER(x) "" STRING(x)
 
 
-#include "CvOperater.h"
+// #include "CvOperater.h"
 
 class VideoGlfw;
 typedef int (*GetVideoDataFun)(VideoGlfw* hadle, uint8_t** data, int64_t* size);

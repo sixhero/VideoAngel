@@ -1,10 +1,11 @@
-#define MINIAUDIO_IMPLEMENTATION
+﻿#define MINIAUDIO_IMPLEMENTATION
 #include "LowAudio.h"
 #include "VideoDesc.h"
 #include <iostream>
 #include <chrono>
+#include <thread>
 
-FILE* file_low = fopen("E:\\Test3.pcm", "wb+");
+// FILE* file_low = fopen("E:\\Test3.pcm", "wb+");
 
 //音频数据回调函数
 void data_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frameCount)
@@ -17,7 +18,7 @@ void data_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uin
         //缓冲区数据不足，禁止获取数据
         low_audio->m_logger->info("缓冲区数据不足，禁止获取数据");
         low_audio->m_buff_is_ok = false;
-        Sleep(10);
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
     	return;
     }
     if (low_audio->m_buff_is_ok)
@@ -78,7 +79,7 @@ void LowAudio::Start()
     m_data_thread = std::thread(&LowAudio::ThreadData, this);
     m_data_thread.detach();
 }
-FILE* file_low_audio = fopen("E:\\Test2.pcm", "wb+");
+// FILE* file_low_audio = fopen("E:\\Test2.pcm", "wb+");
 int LowAudio::ThreadData()
 {
     uint8_t** data = new uint8_t*;
@@ -94,7 +95,7 @@ int LowAudio::ThreadData()
             while (data_size != (write_size += m_audio_buff.write_data(*data+write_size, data_size-write_size)))
             {
                 m_buff_is_ok = true;
-                Sleep(10);
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
             }
         }
     }

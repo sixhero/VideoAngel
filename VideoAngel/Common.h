@@ -1,4 +1,4 @@
-#ifndef _COMMON_
+﻿#ifndef _COMMON_
 #define _COMMON_
 #include <stdint.h>
 /// @brief 视频解码后的视频结构体

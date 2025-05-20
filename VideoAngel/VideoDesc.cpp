@@ -1,4 +1,8 @@
-#include "VideoDesc.h"
+﻿#include "VideoDesc.h"
+
+#include <chrono>
+#include <thread>
+
 //#define STB_IMAGE_WRITE_IMPLEMENTATION
 //#include "stb_image_write.h"
 VideoDesc::VideoDesc()
@@ -171,7 +175,7 @@ int VideoDesc::InitVideoDesc(std::string source_url)
 				return -7;
 			}
 		}
-		m_audio_channels = m_av_audio_code_context->channels;
+		m_audio_channels = m_av_audio_code_context->ch_layout.nb_channels;
 		m_audio_sample_rate = m_av_audio_code_context->sample_rate;
 	}
 	m_av_packet = av_packet_alloc();
@@ -189,7 +193,7 @@ int VideoDesc::GetVideoData(VideoData* video_data)
 	if (m_video_frame_queue.size() <= 0)
 	{
 		//m_logger->info("视频帧队列数据为空");
-		Sleep(2);
+        std::this_thread::sleep_for(std::chrono::milliseconds(2));
 		return -1;
 	}
 
@@ -205,12 +209,12 @@ int VideoDesc::GetVideoData(VideoData* video_data)
 		if (_pts_ > 0 && _pts_ < 2000)
 		{
 			m_logger->info("睡眠时间：" + std::to_string(_pts_));
-			Sleep(_pts_);
+			std::this_thread::sleep_for(std::chrono::milliseconds(_pts_));
 		}
 	}
 	else
 	{
-		Sleep(1000 / m_video_fps);
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000 / m_video_fps));
 	}
 	int ret;
 	int video_size = av_image_get_buffer_size(AV_PIX_FMT_RGB24, m_video_width, m_video_height, 4);
@@ -261,13 +265,13 @@ END:
 	//stbi_write_png("E:\\Test.png", m_video_width, m_video_height, 4, video_data->_data, 0);
 	return ret;
 }
-FILE* file = fopen("E:\\Test1.pcm", "wb+");
+// FILE* file = fopen("E:\\Test1.pcm", "wb+");
 int VideoDesc::GetAudioData(AudioData* audio_data)
 {
 	if (m_audio_frame_queue.size() <= 0)
 	{
 		m_logger->info("音频帧队列数据为空");
-		Sleep(20);
+		std::this_thread::sleep_for(std::chrono::milliseconds(20));
 		return -1;
 	}
 	AVFrame* frame = m_audio_frame_queue.front();
@@ -428,7 +432,7 @@ void VideoDesc::ThreadDesc()
 		if (m_audio_frame_queue.size() > 100 || m_video_frame_queue.size() > 100)
 		//if ((m_audio_index != -1 && m_audio_frame_queue.size() > 100) || (m_video_index != -1 && m_video_frame_queue.size() > 100))
 		{
-			Sleep(20);
+			std::this_thread::sleep_for(std::chrono::milliseconds(20));
 			continue;
 		}
 		if (AVDecode() == AVERROR_EOF)

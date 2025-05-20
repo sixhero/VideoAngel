@@ -1,4 +1,4 @@
-#ifndef _CIRCLE_BUFFER_
+﻿#ifndef _CIRCLE_BUFFER_
 #define _CIRCLE_BUFFER_
 
 //功能--循环缓冲区
