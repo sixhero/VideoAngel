@@ -59,6 +59,8 @@ private:
     /// @brief 视频显示线程
     std::thread m_show_thread;
 
+    bool m_is_working = false;
+
 public:
     /// @brief 用户指定指针数据，回调使用
     void* m_user_data;
@@ -80,6 +82,11 @@ public:
 
     /// @brief 启动播放线程
     void Start();
+
+    /// @brief 停止播放线程
+    void Stop();
+
+    bool GlfwIsWorking();
 
     //
     bool ChangeVtex(float* vtex, double video_width, double video_height, double view_width, double view_height);

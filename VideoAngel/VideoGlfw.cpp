@@ -4,11 +4,12 @@
 VideoGlfw::VideoGlfw()
 {
 	m_logger = spdlog::stdout_color_mt("VideoGlfw");
-	m_logger->info("初始化！！！");
+	m_logger->info("init VideoGlfw");
 }
 
 VideoGlfw::~VideoGlfw()
 {
+
 }
 
 void FramebufferSizeCallback(GLFWwindow* window, int width, int height)
@@ -31,7 +32,7 @@ int VideoGlfw::InitVideoGlfw()
 	m_glfw_window = glfwCreateWindow(864, 486, "VideoAngel", NULL, NULL);
 	if (m_glfw_window == nullptr)
 	{
-		m_logger->error("GLFW的窗口句柄初始化失败！！！");
+		m_logger->error("Glfw create window failed!");
 		glfwTerminate();
 		return -1;
 	}
@@ -42,7 +43,7 @@ int VideoGlfw::InitVideoGlfw()
 	//初始化GLAD组件
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
-		m_logger->error("初始化GLAD组件失败！！！");
+		m_logger->error("init GLAD failed!");
 		return -2;
 	}
 
@@ -79,12 +80,13 @@ int VideoGlfw::InitVideoGlfw()
 	{
 		//编译失败
 		glad_glGetShaderInfoLog(m_vertex_shader, sizeof(compile_info), nullptr, compile_info);
-		m_logger->error(std::string() + "顶点着色器编译失败--" + compile_info);
+		m_logger->error(std::string() + "vertex shader compile faild! " + compile_info);
 		return -3;
 	}
 
 	//创建片段着色器
 	m_fragment_shader = glad_glCreateShader(GL_FRAGMENT_SHADER);
+
 	//绑定着色器源码
 	glad_glShaderSource(m_fragment_shader, 1, &fragment_shader_source, nullptr);
 	//编译着色器
@@ -96,7 +98,7 @@ int VideoGlfw::InitVideoGlfw()
 	{
 		//编译失败
 		glad_glGetShaderInfoLog(m_fragment_shader, 512, nullptr, compile_info);
-		m_logger->error(std::string() + "片段着色器编译失败-" + compile_info);
+		m_logger->error(std::string() + "fragment shader compile faild! " + compile_info);
 		return -3;
 	}
 
@@ -198,8 +200,19 @@ int VideoGlfw::ShowVideo(const uint64_t& width, const uint64_t& height, const ui
 
 void VideoGlfw::Start()
 {
+	m_is_working = true;
 	m_show_thread = std::thread(&VideoGlfw::ThreadShow,this);
 	m_show_thread.detach();
+}
+
+void VideoGlfw::Stop()
+{
+	m_is_working = false;
+}
+
+bool VideoGlfw::GlfwIsWorking()
+{
+    return m_is_working;
 }
 
 bool VideoGlfw::ChangeVtex(float* vtex, double video_width, double video_height, double view_width, double view_height)
@@ -255,7 +268,11 @@ void VideoGlfw::ExitVideoAngel()
 
 	m_glfw_window = nullptr;
 
-	m_logger->info("退出视频渲染器");
+	m_logger->info("exit video angel!");
+
+	//停止视频解码，停止视频显示，停止音频播放
+
+	Stop();
 }
 
 int VideoGlfw::ThreadShow()
@@ -263,12 +280,13 @@ int VideoGlfw::ThreadShow()
 	InitVideoGlfw();
 	uint8_t** data = new uint8_t*;
 	int64_t data_size;
-	while (true)
+	while (m_is_working)
 	{
 		m_glfw_callback(this, data, &data_size);
 		ShowVideo(m_width, m_height, *data);
 		std::this_thread::sleep_for(std::chrono::milliseconds(2));
 	}
 	delete data;
+	m_logger->info("exit thread show!");
 	return 0;
 }

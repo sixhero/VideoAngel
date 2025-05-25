@@ -105,6 +105,9 @@ private:
 	/// @brief 视频实际显示比例width/height
 	AVRational m_video_dar;
 
+	/// @brief 解码线程运行控制标志
+	bool m_is_working = false;
+
 private:
 	/// @brief 解包函数
 	/// @return 
@@ -120,22 +123,47 @@ public:
 	/// @return 
 	int InitVideoDesc(std::string source_url);
 
+	/// @brief 获取视频数据
+	/// @param video_data 
+	/// @return 
 	int GetVideoData(VideoData *video_data);
 
+	/// @brief 获取音频数据
+	/// @param audio_data 
+	/// @return 
 	int GetAudioData(AudioData* audio_data);
 
+	/// @brief 获取视频数据宽度
+	/// @return 
 	int GetVideoWidth();
 
+	/// @brief 获取视频数据高度
+	/// @return 
 	int GetVideoHeight();
 
+	/// @brief 获取音频数据通道数
+	/// @return 
 	int GetAudioChannels();
 
+	/// @brief 获取音频数据采样率
+	/// @return 
 	int GetAudioSampleRate();
 
+	/// @brief 获取视频数据索引
+	/// @return 
 	int GetVideoIndex();
+
+	/// @brief 获取音频数据索引
+	/// @return
 	int GetAudioIndex();
 
+	/// @brief 获取视频数据的实际显示比例，16：9
+	/// @param dar_w 
+	/// @param dar_h 
 	void GetVideoDar(int &dar_w,int &dar_h);
+
+	/// @brief 停止解码线程
+	void Stop();
 };
 
 #endif // !_VIDEO_DESC_

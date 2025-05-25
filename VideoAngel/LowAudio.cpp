@@ -16,7 +16,6 @@ void data_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uin
     if (size > use_size)
     {
         //缓冲区数据不足，禁止获取数据
-        low_audio->m_logger->info("缓冲区数据不足，禁止获取数据");
         low_audio->m_buff_is_ok = false;
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     	return;
@@ -24,7 +23,6 @@ void data_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uin
     if (low_audio->m_buff_is_ok)
     {
         low_audio->m_audio_buff.read_data((uint8_t*)pOutput, size);
-        //fwrite(pOutput, 1, size, file_low);
     }
 }
 
@@ -32,11 +30,12 @@ LowAudio::LowAudio()
 {
     m_buff_is_ok = false;
     m_logger = spdlog::stdout_color_mt("LowAudio");
-    m_logger->info("初始化！！！");
+    m_logger->info("LowAudio init");
 }
 
 LowAudio::~LowAudio()
 {
+    ma_device_uninit(&m_device);
 }
 
 int LowAudio::InitAudio(int channels, int sample_rate)
@@ -59,33 +58,41 @@ int LowAudio::InitAudio(int channels, int sample_rate)
     m_device_conf.pUserData = this;
 
     if (ma_device_init(NULL, &m_device_conf, &m_device) != MA_SUCCESS) {
-        printf("Failed to open playback device.\n");
+        m_logger->error("Failed to open playback device.\n");
         ma_decoder_uninit(&m_decoder);
         return -3;
     }
 
+    return 0;
+}
+
+int LowAudio::Start()
+{
     if (ma_device_start(&m_device) != MA_SUCCESS) {
-        printf("Failed to start playback device.\n");
         ma_device_uninit(&m_device);
         ma_decoder_uninit(&m_decoder);
         return -4;
     }
-    //ma_device_uninit(&m_device);
-    return 0;
-}
 
-void LowAudio::Start()
-{
+    m_is_working = true;
     m_data_thread = std::thread(&LowAudio::ThreadData, this);
     m_data_thread.detach();
 }
+
+void LowAudio::Stop()
+{
+    m_is_working = false;
+    ma_device_stop(&m_device);
+
+}
+
 // FILE* file_low_audio = fopen("E:\\Test2.pcm", "wb+");
 int LowAudio::ThreadData()
 {
     uint8_t** data = new uint8_t*;
     int64_t data_size = 0;
     uint32_t write_size;
-    while (true)
+    while (m_is_working)
     {
         if (m_low_data_callback(this, data, &data_size) == 0)
         {
@@ -96,8 +103,14 @@ int LowAudio::ThreadData()
             {
                 m_buff_is_ok = true;
                 std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                if(!m_is_working)
+                {
+                    break;
+                }
             }
         }
     }
-    delete data;    
+    m_logger->info("low audio thread exit");
+    delete data;
+    return 0;
 }

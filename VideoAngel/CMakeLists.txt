@@ -22,7 +22,7 @@ add_executable (VideoAngel	"VideoAngel.cpp"
 )
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
-  set_property(TARGET VideoAngel PROPERTY CXX_STANDARD 17)
+  set_property(TARGET VideoAngel PROPERTY CXX_STANDARD 11)
 endif()
 
 find_path(MINIAUDIO_INCLUDE_DIRS "miniaudio.h")
@@ -39,6 +39,8 @@ target_link_libraries(VideoAngel PRIVATE glfw)
 find_package(glad CONFIG REQUIRED)
 target_link_libraries(VideoAngel PRIVATE glad::glad)
 
+#注：spdlog 默认引入了编译器配置 /utf-8
+#  add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
 find_package(spdlog CONFIG REQUIRED)
 target_link_libraries(VideoAngel PRIVATE spdlog::spdlog_header_only)
 

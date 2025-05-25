@@ -27,6 +27,8 @@ private:
 
 	std::thread m_data_thread;
 
+	bool m_is_working = false;
+
 public:
 
 	//CircleBuffer m_audio_buff = {};
@@ -44,7 +46,9 @@ private:
 public:
 	int InitAudio(int channels, int sample_rate);
 
-	void Start();
+	int Start();
+
+	void Stop();
 
 	std::shared_ptr<spdlog::logger> m_logger;
 
