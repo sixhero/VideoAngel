@@ -1,0 +1,5 @@
+{
+  "name": "debian buster",
+  "image": "crpi-gvakxtmt8xw2gtzb.cn-shanghai.personal.cr.aliyuncs.com/sixhero/debian:buster",
+  "features": {}
+}
