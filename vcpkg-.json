@@ -1,7 +1,7 @@
 {
     "name":"video-angel-dependencies",
-    "version-semver":"1.0.0",
-    "dependencies--":[
+    "version-semver":"1.0.0"
+    "dependencies":[
         "miniaudio",
         "ffmpeg",
         "glfw3",
