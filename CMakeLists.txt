@@ -7,10 +7,12 @@
 # add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/Zc:char8_t->")
 
 if(CMAKE_HOST_UNIX)
-  set(CMAKE_TOOLCHAIN_FILE "/root/Debian/vcpkg/scripts/buildsystems/vcpkg.cmake")
+  set(VCPKG_ROOT "/root/Debian/vcpkg")
 else(CMAKE_HOST_WIN32)
-  set(CMAKE_TOOLCHAIN_FILE "F:/vcpkg/scripts/buildsystems/vcpkg.cmake")
+  set(VCPKG_ROOT "F:/vcpkg")
 endif()
+
+set(CMAKE_TOOLCHAIN_FILE "${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
 
 project ("VideoAngel")
 
