@@ -13,6 +13,21 @@ VideoDesc::VideoDesc()
 
 VideoDesc::~VideoDesc()
 {
+	//清除队列缓存的数据
+	while (m_audio_frame_queue.size() > 0)
+	{
+		AVFrame *frame = m_audio_frame_queue.front();
+		av_frame_free(&frame);
+		m_audio_frame_queue.pop();
+	}
+	
+	while (m_video_frame_queue.size() > 0)
+	{
+		AVFrame *frame = m_video_frame_queue.front();
+		av_frame_free(&frame);
+		m_video_frame_queue.pop();
+	}
+
 	av_frame_free(&m_av_audio_frame_dest);
 	av_frame_free(&m_av_video_frame_dest);
 	av_packet_free(&m_av_packet);
@@ -438,32 +453,19 @@ void VideoDesc::ThreadDesc()
 {
 	while (m_is_working)
 	{
-		if (m_audio_frame_queue.size() > 100 || m_video_frame_queue.size() > 100)
+		// if (m_audio_frame_queue.size() > 50 || m_video_frame_queue.size() > 50)
 		//if ((m_audio_index != -1 && m_audio_frame_queue.size() > 100) || (m_video_index != -1 && m_video_frame_queue.size() > 100))
+		if(m_video_frame_queue.size() > (m_video_fps * 2))
 		{
 			std::this_thread::sleep_for(std::chrono::milliseconds(20));
 			continue;
 		}
 		if (AVDecode() == AVERROR_EOF)
 		{
-			return;
+			break;
 		}
 	}
-	//清除队列缓存的数据
-	while (m_audio_frame_queue.size() > 0)
-	{
-		AVFrame *frame = m_audio_frame_queue.front();
-		av_frame_free(&frame);
-		m_audio_frame_queue.pop();
-	}
 	
-	while (m_video_frame_queue.size() > 0)
-	{
-		AVFrame *frame = m_video_frame_queue.front();
-		av_frame_free(&frame);
-		m_video_frame_queue.pop();
-	}
-
 	m_logger->info("exit thread desc!");
 }
 

@@ -9,6 +9,10 @@ VideoGlfw::VideoGlfw()
 
 VideoGlfw::~VideoGlfw()
 {
+	if(m_glfw_window)
+	{
+		glfwDestroyWindow(m_glfw_window);
+	}
 
 }
 
@@ -262,6 +266,7 @@ void VideoGlfw::ExitVideoAngel()
 	glad_glDeleteVertexArrays(1, &m_VAO);
 	glad_glDeleteBuffers(1, &m_VAO);
 	glad_glDeleteBuffers(1, &m_VAO);
+	glad_glDeleteProgram(m_shader_program);
 
 	//停止GLFW窗口
 	glfwTerminate();
