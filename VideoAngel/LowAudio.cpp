@@ -77,6 +77,7 @@ int LowAudio::Start()
     m_is_working = true;
     m_data_thread = std::thread(&LowAudio::ThreadData, this);
     m_data_thread.detach();
+    return 0;
 }
 
 void LowAudio::Stop()
